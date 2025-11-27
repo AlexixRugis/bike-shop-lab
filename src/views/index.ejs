@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%=title %></title>
+    <meta charset="utf-8" />
+</head>
+<body>
+     
+    <h1><%=title %> в EJS</h1>
+
+    <h3>Велосипеды</h3>
+        <ul>
+            <% for(var i=0; i<bikes.length;i++) {%>
+                <li>
+                    <% if(bikes[i].image) {%>
+                        <img src="<%=bikes[i].image%>" width="200"/>
+                    <% } %>
+                    <div>
+                        <%=bikes[i].name%>
+                    </div>
+                    <div>
+                        <%=bikes[i].description%>
+                    </div>
+                    <div>
+                        <a href="">В избранное</a>
+                        <a href="/reserve/<%=bikes[i].pk%>">Выбрать</a>
+                    </div>
+                </li>
+            <%} %>
+        </ul>
+</body>
+<html>

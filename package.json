@@ -1,0 +1,18 @@
+{
+  "name": "bike-shop-lab",
+  "version": "1.0.0",
+  "description": "Just an bicycle rent app",
+  "main": "./src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "alexixrugis",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "winston": "^3.18.3"
+  }
+}
