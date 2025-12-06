@@ -1,17 +1,17 @@
 const pool = require('../config/db');
 
-exports.getBike = async (bike_id) => {
+exports.getStation = async (station_id) => {
     try {
-        const result = await pool.query(`SELECT * FROM bikes WHERE pk=$1`, [bike_id]);
+        const result = await pool.query(`SELECT * FROM stations WHERE pk=$1`, [station_id]);
         return { data: result.rows[0] };
     } catch (err) {
         return { err: err.message };
     }
 };
 
-exports.getAllBikes = async () => {
+exports.getAllStations = async () => {
     try {
-        const result = await pool.query(`SELECT * from bikes`);
+        const result = await pool.query(`SELECT * from stations`);
         return {
             data: result.rows
         };

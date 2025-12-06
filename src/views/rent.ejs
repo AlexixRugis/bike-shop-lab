@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <meta charset="utf-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+
+    <div class="info">
+      <p><strong>Велосипед:</strong> <%= bike.name %></p>
+      <p>
+        <strong>ФИО:</strong> <%= reservation.last_name %> <%=
+        reservation.first_name %> <%= reservation.patronymic %>
+      </p>
+      <p><strong>Телефон:</strong> <%= reservation.phone %></p>
+      <p>
+        <strong>Пункт начала:</strong>
+        <%= stations.find(s => s.pk === reservation.start_station_id)?.address
+        || reservation.start_station_id %>
+      </p>
+      <% if(reservation.actual_start_timestamp){ %>
+      <p>
+        <strong>Время начала:</strong> <%= new
+        Date(reservation.actual_start_timestamp).toLocaleString("ru-RU") %>
+      </p>
+      <% } %> <% if(reservation.end_timestamp){ %>
+      <p>
+        <strong>Время окончания:</strong> <%= new
+        Date(reservation.end_timestamp).toLocaleString("ru-RU") %>
+      </p>
+      <% } %> <% if(reservation.end_station_id){ %>
+      <p>
+        <strong>Пункт окончания:</strong>
+        <%= stations.find(s => s.pk === reservation.end_station_id)?.address ||
+        reservation.end_station_id %>
+      </p>
+      <% } %> <% if(reservation.bike_price){ %>
+      <p><strong>Стоимость проката:</strong> <%= reservation.bike_price %> ₽</p>
+      <% } %>
+    </div>
+
+    <hr />
+
+    <% if (!reservation.actual_start_timestamp) { %>
+    <h3>Ожидает начала</h3>
+    <form method="POST">
+      <input type="hidden" name="action" value="start" />
+      <button>Начать прокат</button>
+    </form>
+    <% } else if (!reservation.end_timestamp) { %>
+    <h3>Прокат активен</h3>
+    <form method="POST">
+      <input type="hidden" name="action" value="end" />
+      <label>Пункт возврата:</label>
+      <select name="station_id" required>
+        <% stations.forEach(st => { %>
+        <option value="<%= st.pk %>"><%= st.address %></option>
+        <% }) %>
+      </select>
+      <button>Завершить прокат</button>
+    </form>
+    <% } else { %>
+    <h3>Прокат завершён</h3>
+    <% } %>
+
+    <a href="/">Вернуться к списку</a>
+  </body>
+</html>
