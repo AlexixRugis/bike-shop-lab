@@ -16,65 +16,77 @@
     ></script>
   </head>
   <body>
-    <h1><%= title %></h1>
+    <%- include('header.ejs') %>
 
-    <div class="info">
-      <p><strong>Велосипед:</strong> <%= bike.name %></p>
+    <div class="container-md">
+      <div class="info border rounded p-5">
+        <p><b>Велосипед:</b> <%= bike.name %></p>
+        <p>
+          <b>ФИО:</b> <%= reservation.last_name %> <%= reservation.first_name %>
+          <%= reservation.patronymic %>
+        </p>
+        <p><b>Телефон:</b> <%= reservation.phone %></p>
+        <p>
+          <b>Пункт выдачи:</b>
+          <%= stations.find(s => s.pk === reservation.start_station_id)?.address
+          || reservation.start_station_id %>
+        </p>
+        <% if(reservation.actual_start_timestamp){ %>
+        <p>
+          <b>Время начала:</b> <%= new
+          Date(reservation.actual_start_timestamp).toLocaleString("ru-RU") %>
+        </p>
+        <% } %> <% if(reservation.end_timestamp){ %>
+        <p>
+          <b>Время окончания:</b> <%= new
+          Date(reservation.end_timestamp).toLocaleString("ru-RU") %>
+        </p>
+        <% } %> <% if(reservation.end_station_id){ %>
+        <p>
+          <b>Пункт возврата:</b>
+          <%= stations.find(s => s.pk === reservation.end_station_id)?.address
+          || reservation.end_station_id %>
+        </p>
+        <% if(reservation.bike_price){ %>
+        <p><b>Стоимость проката:</b> <%= reservation.bike_price %> ₽</p>
+        <% } %> <% } %>
+      </div>
+
+      <hr />
+
+      <% if (!reservation.actual_start_timestamp) { %>
+      <h3>Ожидает начала</h3>
       <p>
-        <strong>ФИО:</strong> <%= reservation.last_name %> <%=
-        reservation.first_name %> <%= reservation.patronymic %>
+        <b>Забронирован на:</b> <%= new
+        Date(reservation.start_timestamp).toLocaleString("ru-RU") %>
       </p>
-      <p><strong>Телефон:</strong> <%= reservation.phone %></p>
-      <p>
-        <strong>Пункт начала:</strong>
-        <%= stations.find(s => s.pk === reservation.start_station_id)?.address
-        || reservation.start_station_id %>
-      </p>
-      <% if(reservation.actual_start_timestamp){ %>
-      <p>
-        <strong>Время начала:</strong> <%= new
-        Date(reservation.actual_start_timestamp).toLocaleString("ru-RU") %>
-      </p>
-      <% } %> <% if(reservation.end_timestamp){ %>
-      <p>
-        <strong>Время окончания:</strong> <%= new
-        Date(reservation.end_timestamp).toLocaleString("ru-RU") %>
-      </p>
-      <% } %> <% if(reservation.end_station_id){ %>
-      <p>
-        <strong>Пункт окончания:</strong>
-        <%= stations.find(s => s.pk === reservation.end_station_id)?.address ||
-        reservation.end_station_id %>
-      </p>
-      <% } %> <% if(reservation.bike_price){ %>
-      <p><strong>Стоимость проката:</strong> <%= reservation.bike_price %> ₽</p>
+      <form method="POST">
+        <input type="hidden" name="action" value="start" />
+        <button class="btn btn-primary">Начать аренду</button>
+      </form>
+      <% } else if (!reservation.end_timestamp) { %>
+      <h3>Приятной поездки!</h3>
+      <p>Не забудьте завершить аренду при сдаче велосипеда</p>
+      <form class="border rounded p-5" method="POST">
+        <input type="hidden" name="action" value="end" />
+        <div class="mb-3">
+          <label for="input_station_id" class="form-label">Пункт возврата:</label>
+          <select
+            id="input_station_id"
+            name="station_id"
+            class="form-select"
+            required
+          >
+            <% stations.forEach(st => { %>
+            <option value="<%= st.pk %>"><%= st.address %></option>
+            <% }) %>
+          </select>
+        </div>
+        <button class="btn btn-primary">Завершить прокат</button>
+      </form>
+      <% } else { %>
+      <h3>Завершён</h3>
       <% } %>
     </div>
-
-    <hr />
-
-    <% if (!reservation.actual_start_timestamp) { %>
-    <h3>Ожидает начала</h3>
-    <form method="POST">
-      <input type="hidden" name="action" value="start" />
-      <button>Начать прокат</button>
-    </form>
-    <% } else if (!reservation.end_timestamp) { %>
-    <h3>Прокат активен</h3>
-    <form method="POST">
-      <input type="hidden" name="action" value="end" />
-      <label>Пункт возврата:</label>
-      <select name="station_id" required>
-        <% stations.forEach(st => { %>
-        <option value="<%= st.pk %>"><%= st.address %></option>
-        <% }) %>
-      </select>
-      <button>Завершить прокат</button>
-    </form>
-    <% } else { %>
-    <h3>Прокат завершён</h3>
-    <% } %>
-
-    <a href="/">Вернуться к списку</a>
   </body>
 </html>

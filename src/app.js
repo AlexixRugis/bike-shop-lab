@@ -39,15 +39,19 @@ app.get("/reserve/:bike_id", async (req, res) => {
     const { err, data } = await stationService.getAllStations();
 
     if (err) {
-        res.status(500).send(err);
-        return;
+        return res.status(500).send(err);
     }
 
     const bike_id = req.params.bike_id;
+    const { data: bike } = await bikeService.getBike(bike_id);
+
+    if (!bike) {
+        return res.status(404).send("Велосипед не найден");
+    }
 
     res.render("reserve", {
         title: "Резервирование велосипеда",
-        bike_id: bike_id,
+        bike: bike,
         stations: data,
         errors: null,
         link: null,
@@ -58,12 +62,11 @@ app.get("/reserve/:bike_id", async (req, res) => {
 
 app.post("/reserve/:bike_id",
     [
-        body("first_name").notEmpty().withMessage("Имя обязательно"),
-        body("last_name").notEmpty().withMessage("Фамилия обязательна"),
-        body("patronymic").notEmpty().withMessage("Отчество обязательно"),
-        body("phone").isMobilePhone("ru-RU").withMessage("Неверный номер телефона"),
-        body("start_station_id").notEmpty().withMessage("Выберите станцию"),
-        body("start_timestamp").notEmpty().withMessage("Дата-время обязательны")
+        body("first_name").notEmpty().withMessage("Введите имя"),
+        body("last_name").notEmpty().withMessage("Введите фамилию"),
+        body("phone").isMobilePhone("ru-RU").withMessage("Неверный формат номера телефона"),
+        body("start_station_id").notEmpty().withMessage("Выберите пункт выдачи"),
+        body("start_timestamp").notEmpty().withMessage("Выберите дату и время проката")
             .custom(value => {
                 const ts = new Date(value);
                 if (ts < new Date()) throw new Error("Время не может быть в прошлом");
@@ -77,6 +80,12 @@ app.post("/reserve/:bike_id",
         const { data: stations } = await stationService.getAllStations();
         const bike_id = req.params.bike_id;
 
+        const { data: bike } = await bikeService.getBike(bike_id);
+
+        if (!bike) {
+            return res.status(404).send("Велосипед не найден");
+        }
+
         if (!errorsRaw.isEmpty()) {
 
             const errors = {};
@@ -84,7 +93,7 @@ app.post("/reserve/:bike_id",
 
             return res.status(400).render("reserve", {
                 title: "Резервирование велосипеда",
-                bike_id,
+                bike,
                 stations,
                 errors: errors,
                 old: req.body,
@@ -92,18 +101,10 @@ app.post("/reserve/:bike_id",
             });
         }
 
-        const { data: bike } = await bikeService.getBike(bike_id);
-
-        if (!bike) {
-            return res.status(404).send("Велосипед не найден");
-        }
-
         const {
             first_name, last_name, patronymic,
             phone, start_station_id, start_timestamp
         } = req.body;
-
-        console.log(bike);
 
         const { err, data } = await reservationService.createReservation(
             first_name,
@@ -117,13 +118,12 @@ app.post("/reserve/:bike_id",
         );
 
         if (err) {
-            console.error(err);
             return res.status(500).send("Ошибка при создании резервации");
         }
 
         return res.render("reserve", {
             title: "Резервирование велосипеда",
-            bike_id,
+            bike,
             stations,
             errors: null,
             link: `/rent/${data.pk}`,
