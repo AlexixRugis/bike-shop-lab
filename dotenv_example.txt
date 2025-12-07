@@ -1,0 +1,8 @@
+# paste it into .env file
+
+DB_USER=username
+DB_HOST=localhost
+DB_NAME=dbname
+DB_PASSWORD=secret
+DB_PORT=5432
+PORT=8080
