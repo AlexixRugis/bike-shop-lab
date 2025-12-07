@@ -18,12 +18,12 @@ pool.query("SELECT NOW()", (err, res) => {
 
 const app = express();
 
-app.use('/static', express.static('public'))
+app.use('/static', express.static('public'));
 
 app.set("view engine", "ejs");
 app.set('views', path.join(__dirname, 'views'));
 
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.url}`);
     next();
@@ -64,7 +64,7 @@ app.post("/reserve/:bike_id",
     [
         body("first_name").notEmpty().withMessage("Введите имя"),
         body("last_name").notEmpty().withMessage("Введите фамилию"),
-        body("phone").isMobilePhone("ru-RU").withMessage("Неверный формат номера телефона"),
+        body("phone").isMobilePhone().withMessage("Неверный формат номера телефона"),
         body("start_station_id").notEmpty().withMessage("Выберите пункт выдачи"),
         body("start_timestamp").notEmpty().withMessage("Выберите дату и время проката")
             .custom(value => {
